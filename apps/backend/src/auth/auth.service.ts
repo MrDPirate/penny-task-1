@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../user/user.schema';
@@ -6,6 +6,7 @@ import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 
 @Injectable()
@@ -79,6 +80,21 @@ async resetPassword(dto: ResetPasswordDto) {
   await user.save();
 
   return { message: 'Password reset successful' };
+}
+
+async changePassword(userId: string, dto: ChangePasswordDto) {
+  const user = await this.userModel.findById(userId);
+
+  const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
+  if (!isMatch) {
+    throw new BadRequestException('كلمة المرور القديمة غير صحيحة');
+  }
+
+  const newHashedPassword = await bcrypt.hash(dto.newPassword, 10);
+  user.password = newHashedPassword;
+  await user.save();
+
+  return { message: 'تم تغيير كلمة المرور بنجاح' };
 }
 
 }

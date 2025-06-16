@@ -52,6 +52,18 @@ export class AuthService {
       newPassword,
     });
   }
+
+  changePassword(oldPassword: string, newPassword: string): Observable<any> {
+    const token = this.getToken();
+    return this.http.post(`${this.apiUrl}/change-password`, {
+      oldPassword,
+      newPassword,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });
+  }
   
     
 }
