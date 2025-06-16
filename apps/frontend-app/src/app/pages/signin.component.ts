@@ -33,6 +33,10 @@ export class SigninComponent {
     this.router.navigate(['/signup']);
   }
   
+  goToForgotPassword(): void {
+    this.router.navigate(['/forgot-password']);
+  }
+
   onSubmit(): void {
     this.authService
       .signin({ email: this.email, password: this.password })
