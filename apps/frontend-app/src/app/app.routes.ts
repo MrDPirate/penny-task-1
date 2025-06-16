@@ -29,7 +29,7 @@ export const routes: Routes = [
     path: 'reset-password',
     loadComponent: () =>
       import('./pages/reset-password.component/reset-password.component').then(m => m.ResetPasswordComponent)
-  }
+  },
   
   {
     path: 'change-password',
