@@ -13,38 +13,41 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signup(dto: CreateUserDto) {
-    const { email, password, username } = dto;
+async signup(dto: CreateUserDto) {
+  const email = dto.email.toLowerCase();
+  const { password, username } = dto;
 
-    const existing = await this.userModel.findOne({ email });
-    if (existing) {
-      throw new ConflictException('Email already in use');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new this.userModel({
-      email,
-      username,
-      password: hashedPassword,
-    });
-
-    await user.save();
-
-    return { message: 'User created successfully' };
+  const existing = await this.userModel.findOne({ email });
+  if (existing) {
+    throw new ConflictException('هذا البريد الإلكتروني مستخدم مسبقًا.');
   }
 
-  async signin(dto: CreateUserDto) {
-    const { email, password } = dto;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = new this.userModel({
+    email,
+    username,
+    password: hashedPassword,
+  });
 
-    const user = await this.userModel.findOne({ email });
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+  await user.save();
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) throw new UnauthorizedException('Invalid credentials');
+  return { message: 'تم إنشاء الحساب بنجاح' };
+}
 
-    const payload = { username: user.username, sub: user._id };
-    const token = await this.jwtService.signAsync(payload);
+async signin(dto: CreateUserDto) {
+  const email = dto.email.toLowerCase();
+  const { password } = dto;
 
-    return { access_token: token };
-  }
+  const user = await this.userModel.findOne({ email });
+  if (!user) throw new UnauthorizedException('بيانات الدخول غير صحيحة');
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch)
+    throw new UnauthorizedException('بيانات الدخول غير صحيحة');
+
+  const payload = { username: user.username, sub: user._id };
+  const token = await this.jwtService.signAsync(payload);
+
+  return { access_token: token };
+}
 }
