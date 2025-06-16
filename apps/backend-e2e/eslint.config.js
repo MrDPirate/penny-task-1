@@ -1,3 +1,4 @@
-const baseConfig = require('../../eslint.config.js');
+const baseConfig = require('../../eslint.base.config.cjs');
 
-module.exports = [...baseConfig];
+
+module.exports = [...baseConfig, ...baseConfig, ...baseConfig];

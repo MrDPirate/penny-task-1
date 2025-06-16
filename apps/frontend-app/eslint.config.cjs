@@ -1,7 +1,9 @@
-import nx from '@nx/eslint-plugin';
-import baseConfig from '../../eslint.config.mjs';
+const baseConfig = require('../../eslint.base.config.cjs');
+const nx = require('@nx/eslint-plugin');
 
-export default [
+module.exports = [
+  ...baseConfig,
+
   ...baseConfig,
   ...nx.configs['flat/angular'],
   ...nx.configs['flat/angular-template'],
