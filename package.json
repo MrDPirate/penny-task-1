@@ -23,6 +23,7 @@
     "@ngrx/entity": "^19.2.1",
     "@ngrx/store": "^19.2.1",
     "@ngrx/store-devtools": "^19.2.1",
+    "@nrwl/angular": "^19.8.4",
     "axios": "^1.6.0",
     "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",

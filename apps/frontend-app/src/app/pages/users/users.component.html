@@ -1,0 +1,9 @@
+<h2>قائمة المستخدمين</h2>
+
+<div *ngIf="loading$ | async">جاري التحميل...</div>
+
+<ul *ngIf="(users$ | async) as users">
+  <li *ngFor="let user of users">
+    👤 {{ user.username }} - {{ user.email }}
+  </li>
+</ul>

@@ -1,8 +1,12 @@
-import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Store } from '@ngrx/store';
+import { login, loginFailure } from '../../actions/auth/auth.actions';
+import { selectError, selectLoading } from '../../selectors/auth/auth.selectors';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { AuthState } from '../../reducers/auth/auth.reducer';
 
 @Component({
   selector: 'app-signin',
@@ -14,41 +18,35 @@ import { FormsModule } from '@angular/forms';
 export class SigninComponent {
   email = '';
   password = '';
-  errorMessage = '';
+  errorMessage$: Observable<string | null>;
+  loading$: Observable<boolean>;
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
+  private store = inject(Store<{ auth: AuthState }>);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  constructor() {
+    this.errorMessage$ = this.store.select(selectError);
+    this.loading$ = this.store.select(selectLoading);
+
     this.route.queryParams.subscribe((params) => {
       if (params['authError']) {
-        this.errorMessage = 'يجب تسجيل الدخول أولاً للوصول إلى الصفحة.';
+        this.store.dispatch(
+          loginFailure({ error: 'يجب تسجيل الدخول أولاً للوصول إلى الصفحة.' })
+        );
       }
     });
   }
 
   goToSignup(): void {
-    this.errorMessage = '';
     this.router.navigate(['/signup']);
   }
-  
+
   goToForgotPassword(): void {
     this.router.navigate(['/forgot-password']);
   }
 
   onSubmit(): void {
-    this.authService
-      .signin({ email: this.email, password: this.password })
-      .subscribe({
-        next: (res) => {
-          this.authService.saveToken(res.access_token);
-          this.router.navigate(['/dashboard']);
-        },
-        error: (err) => {
-          console.error(err);
-          this.errorMessage = 'فشل تسجيل الدخول. تأكد من البيانات.';
-        },
-      });
+    this.store.dispatch(login({ email: this.email, password: this.password }));
   }
 }

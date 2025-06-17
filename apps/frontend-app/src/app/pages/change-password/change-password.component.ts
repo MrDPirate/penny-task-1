@@ -20,6 +20,8 @@ import { Observable } from 'rxjs';
 export class ChangePasswordComponent implements OnInit {
   oldPassword = '';
   newPassword = '';
+  confirmPassword = '';
+  passwordMismatch = false;
 
   loading$!: Observable<boolean>;
   error$!: Observable<string | null>;
@@ -34,12 +36,24 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.oldPassword || !this.newPassword) return;
+    if (!this.oldPassword || !this.newPassword || !this.confirmPassword) return;
+
+    if (this.newPassword !== this.confirmPassword) {
+      this.passwordMismatch = true;
+      return;
+    }
+
+    this.passwordMismatch = false;
+
     this.store.dispatch(
       changePassword({
         oldPassword: this.oldPassword,
         newPassword: this.newPassword,
       })
     );
+
+    this.oldPassword = '';
+    this.newPassword = '';
+    this.confirmPassword = '';
   }
 }

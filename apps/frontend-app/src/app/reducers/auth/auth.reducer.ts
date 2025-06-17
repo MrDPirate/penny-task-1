@@ -9,14 +9,18 @@ export interface AuthState {
   loading: boolean;
   error: string | null;
   successMessage: string | null;
+  users: any[];
+
 }
+const storedToken = localStorage.getItem('access_token');
 
 export const initialState: AuthState = {
   user: null,
-  token: null,
+  token: storedToken,
   loading: false,
   error: null,
   successMessage: null,
+  users: [],
 };
 
 export const reducer = createReducer(
@@ -29,10 +33,9 @@ export const reducer = createReducer(
     error: null,
     successMessage: null,
   })),
-  on(AuthActions.loginSuccess, (state, { user, token }) => ({
+  on(AuthActions.loginSuccess, (state, { token }) => ({
     ...state,
     loading: false,
-    user,
     token,
   })),
   on(AuthActions.loginFailure, (state, { error }) => ({
@@ -114,5 +117,21 @@ export const reducer = createReducer(
   })),
 
   // Logout
-  on(AuthActions.logout, () => initialState)
+  on(AuthActions.logout, () => initialState),
+
+  // List Users
+  on(AuthActions.loadUsersSuccess, (state, { users }) => ({
+    ...state,
+    users,
+    loading: false,
+    error: null
+  })),
+  
+  on(AuthActions.loadUsersFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+  
+  
 );

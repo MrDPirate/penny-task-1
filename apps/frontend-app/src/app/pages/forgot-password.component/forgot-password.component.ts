@@ -1,7 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
+import { Store } from '@ngrx/store';
+import { sendResetLink } from '../../actions/auth/auth.actions';
+import {
+  selectLoading,
+  selectError,
+  selectSuccessMessage,
+} from '../../selectors/auth/auth.selectors';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-forgot-password',
@@ -10,25 +17,24 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.css'],
 })
-export class ForgotPasswordComponent {
+export class ForgotPasswordComponent implements OnInit {
   email = '';
-  message = '';
-  errorMessage = '';
+  loading$!: Observable<boolean>;
+  error$!: Observable<string | null>;
+  success$!: Observable<string | null>;
 
-  constructor(private authService: AuthService) {}
+  constructor(private store: Store) {}
+
+  ngOnInit(): void {
+    this.loading$ = this.store.select(selectLoading);
+    this.error$ = this.store.select(selectError);
+    this.success$ = this.store.select(selectSuccessMessage);
+  }
 
   onSubmit(): void {
-    this.message = '';
-    this.errorMessage = '';
+    if (!this.email) return;
 
-    this.authService.sendResetLink(this.email).subscribe({
-      next: (res) => {
-        this.message = res.message || 'تم إرسال رابط إعادة التعيين.';
-        this.email = '';
-      },
-      error: (err) => {
-        this.errorMessage = err.error?.message || 'حدث خطأ أثناء الإرسال.';
-      },
-    });
+    this.store.dispatch(sendResetLink({ email: this.email }));
+    this.email = '';
   }
 }

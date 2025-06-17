@@ -65,5 +65,12 @@ export class AuthService {
     });
   }
   
+  getAllUsers(): Observable<any[]> {
+    const token = this.getToken();
+    return this.http.get<any[]>(`${this.apiUrl}/users`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
+  
     
 }

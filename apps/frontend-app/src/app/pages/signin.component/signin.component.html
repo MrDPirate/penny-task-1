@@ -1,6 +1,6 @@
 <h2>تسجيل الدخول</h2>
 
-<div *ngIf="errorMessage" style="color: red; margin-bottom: 15px;">
+<div *ngIf="errorMessage$ | async as errorMessage" style="color: red; margin-bottom: 15px;">
   {{ errorMessage }}
 </div>
 
@@ -28,7 +28,6 @@
   </div>
 
   <button type="submit">تسجيل الدخول</button>
-  <button (click)="goToSignup()">إنشاء حساب جديد</button>
-  <button (click)="goToForgotPassword()" type="button">نسيت كلمة المرور؟</button>
-
+  <button type="button" (click)="goToSignup()">إنشاء حساب جديد</button>
+  <button type="button" (click)="goToForgotPassword()">نسيت كلمة المرور؟</button>
 </form>

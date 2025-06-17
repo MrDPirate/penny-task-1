@@ -7,7 +7,7 @@ export const login = createAction(
 );
 export const loginSuccess = createAction(
   '[Auth] Login Success',
-  props<{ token: string; user: any }>()
+  props<{ token: string }>()
 );
 export const loginFailure = createAction(
   '[Auth] Login Failure',
@@ -72,3 +72,16 @@ export const resetPasswordFailure = createAction(
 
 // Logout
 export const logout = createAction('[Auth] Logout');
+
+// List Users
+export const loadUsers = createAction('[Users] Load Users');
+
+export const loadUsersSuccess = createAction(
+  '[Users] Load Users Success',
+  props<{ users: any[] }>()
+);
+
+export const loadUsersFailure = createAction(
+  '[Users] Load Users Failure',
+  props<{ error: string }>()
+);

@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from '../user/user.schema';
+import { User, UserDocument } from '../app/user/user.schema';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -48,7 +48,7 @@ async signin(dto: CreateUserDto) {
   if (!passwordMatch)
     throw new UnauthorizedException('بيانات الدخول غير صحيحة');
 
-  const payload = { username: user.username, sub: user._id };
+  const payload = { username: user.username, sub: user._id, email: user.email, };
   const token = await this.jwtService.signAsync(payload);
 
   return { access_token: token };
@@ -82,8 +82,18 @@ async resetPassword(dto: ResetPasswordDto) {
   return { message: 'Password reset successful' };
 }
 
+async getAllUsers() {
+  const users = await this.userModel.find({}, { password: 0 });
+  return users;
+}
+
+
 async changePassword(userId: string, dto: ChangePasswordDto) {
   const user = await this.userModel.findById(userId);
+
+  if (!user) {
+    throw new NotFoundException('المستخدم غير موجود');
+  }
 
   const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
   if (!isMatch) {

@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -33,4 +34,19 @@ export class AuthController {
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
   }
+
+@UseGuards(JwtAuthGuard)
+@Post('change-password')
+changePassword(@Req() req, @Body() dto: ChangePasswordDto) {
+  console.log('🔒 USER FROM TOKEN:', req.user);
+  return this.authService.changePassword(req.user.sub, dto);
+}
+
+@UseGuards(JwtAuthGuard)
+@Get('users')
+getAllUsers() {
+  return this.authService.getAllUsers();
+}
+
+
 }

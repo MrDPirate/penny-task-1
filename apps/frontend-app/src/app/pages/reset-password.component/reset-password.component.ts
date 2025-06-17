@@ -1,8 +1,15 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { resetPassword } from '../../actions/auth/auth.actions';
+import {
+  selectError,
+  selectSuccessMessage,
+  selectLoading,
+} from '../../selectors/auth/auth.selectors';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-reset-password',
@@ -14,36 +21,39 @@ import { FormsModule } from '@angular/forms';
 export class ResetPasswordComponent {
   newPassword = '';
   confirmPassword = '';
-  errorMessage = '';
-  successMessage = '';
+  passwordMismatch = false;
   token = '';
+
+  loading$!: Observable<boolean>;
+  error$!: Observable<string | null>;
+  success$!: Observable<string | null>;
 
   constructor(
     private route: ActivatedRoute,
-    private authService: AuthService,
+    private store: Store,
     private router: Router
   ) {
     this.token = this.route.snapshot.queryParamMap.get('token') || '';
+    this.loading$ = this.store.select(selectLoading);
+    this.error$ = this.store.select(selectError);
+    this.success$ = this.store.select(selectSuccessMessage);
   }
 
-  onSubmit() {
-    this.errorMessage = '';
-    this.successMessage = '';
+  onSubmit(): void {
+    if (!this.newPassword || !this.confirmPassword) return;
 
     if (this.newPassword !== this.confirmPassword) {
-      this.errorMessage = 'كلمتا المرور غير متطابقتين.';
+      this.passwordMismatch = true;
       return;
     }
 
-    this.authService.resetPassword(this.token, this.newPassword).subscribe({
-      next: () => {
-        this.successMessage = 'تم إعادة تعيين كلمة المرور بنجاح.';
-        setTimeout(() => this.router.navigate(['/']), 2000);
-      },
-      error: (err) => {
-        console.error(err);
-        this.errorMessage = 'حدث خطأ أثناء إعادة التعيين. تأكد من صحة الرابط.';
-      },
-    });
+    this.passwordMismatch = false;
+
+    this.store.dispatch(
+      resetPassword({ token: this.token, newPassword: this.newPassword })
+    );
+
+    this.newPassword = '';
+    this.confirmPassword = '';
   }
 }
